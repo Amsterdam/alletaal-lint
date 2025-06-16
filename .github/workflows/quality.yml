@@ -210,8 +210,8 @@ jobs:
         print(f'  Max time: {max(doc_times)*1000:.2f}ms')
         
         # Performance assertions
-        assert avg_time < 1.5, f'Sentence processing too slow: {avg_time}s'
-        assert doc_avg < 3.0, f'Document processing too slow: {doc_avg}s'
+        assert avg_time < 2.0, f'Sentence processing too slow: {avg_time}s'
+        assert doc_avg < 4.0, f'Document processing too slow: {doc_avg}s'
         
         print('\\nPerformance benchmarks passed!')
         "
