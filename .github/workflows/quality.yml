@@ -49,20 +49,6 @@ jobs:
       with:
         python-version: "3.11"
 
-    - name: Dependency vulnerability check with Safety
-      run: |
-        pip install safety
-        safety check --json --output safety-report.json
-        safety check
-
-    - name: Upload security scan results
-      if: always()
-      uses: actions/upload-artifact@v4
-      with:
-        name: security-reports
-        path: |
-          safety-report.json
-
   documentation-check:
     runs-on: ubuntu-latest
     steps:

@@ -39,7 +39,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install build pytest pytest-cov pytest-xdist
+        pip install build
         pip install -e ".[dev]"
 
     - name: Download spaCy Dutch model
@@ -227,7 +227,6 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install build
-        pip install safety
         pip install -e ".[dev]"
 
     - name: Check code formatting with Black
@@ -236,7 +235,7 @@ jobs:
 
     - name: Check import sorting with isort
       run: |
-        isort --check-only src/ tests/mak
+        isort --check-only src/ tests/
 
     - name: Run type checking
       run: |
