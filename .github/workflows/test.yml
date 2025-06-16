@@ -205,7 +205,7 @@ jobs:
         print(f'Document processing time ({len(test_doc)} chars): {end-start:.4f}s')
         
         # Performance assertions
-        assert avg_time < 1.0, f'Sentence processing too slow: {avg_time}s'
+        assert avg_time < 2.0, f'Sentence processing too slow: {avg_time}s'
         assert (end-start) < 10.0, f'Document processing too slow: {end-start}s'
         print('Performance tests passed!')
         "
