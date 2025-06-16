@@ -95,7 +95,6 @@ class TestCLICommands:
         except json.JSONDecodeError:
             pytest.fail("Output is not valid JSON")
 
-
     def test_score_command_file_not_found(self, runner):
         """Test score command with non-existent file."""
         result = runner.invoke(app, ["score", "--file", "nonexistent.txt"])
@@ -145,7 +144,6 @@ class TestCLIOutputFormats:
         except json.JSONDecodeError:
             pytest.fail("Invalid JSON output")
 
-
     def test_table_output_format(self, runner):
         """Test default table output format."""
         result = runner.invoke(app, ["score", "--text", "Test zin."])
@@ -186,7 +184,6 @@ class TestCLIFileOperations:
         finally:
             if output_file.exists():
                 output_file.unlink()
-
 
     def test_input_from_file_encoding(self, runner):
         """Test reading files with different encodings."""

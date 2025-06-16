@@ -46,9 +46,7 @@ def score(
     output: Optional[Path] = typer.Option(
         None, "--output", "-o", help="Output file for results"
     ),
-    format: str = typer.Option(
-        "table", "--format", help="Output format (table, json)"
-    ),
+    format: str = typer.Option("table", "--format", help="Output format (table, json)"),
     detailed: bool = typer.Option(
         False, "--detailed", "-d", help="Show detailed analysis"
     ),
