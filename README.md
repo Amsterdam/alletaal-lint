@@ -12,7 +12,7 @@ alletaal-lint is a Dutch text readability assessment tool based on the LiNT (Lee
 - **Sentence-level and document-level readability analysis**
 - **REST API** for integration with other systems
 - **Command-line interface** for batch processing and scripting
-- **Multiple output formats** (JSON, CSV, table)
+- **Multiple output formats** (JSON, table)
 - **Scientific methodology** based on validated research
 - **Easy integration** with existing workflows
 

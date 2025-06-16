@@ -4,7 +4,7 @@ Tests for core LiNT functionality.
 
 import pytest
 
-from alletaal_lint.core import Document, LintScorer, Sentence, WordStats
+from alletaal_lint.core import Document, LintScorer, Sentence
 
 
 class TestLintScorer:

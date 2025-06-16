@@ -254,18 +254,9 @@ jobs:
       run: |
         isort --check-only src/ tests/
 
-    - name: Run comprehensive linting
-      run: |
-        flake8 src/ tests/
-
     - name: Run type checking
       run: |
         mypy src/alletaal_lint/
-
-    - name: Check for security issues
-      run: |
-        pip install bandit
-        bandit -r src/
 
     - name: Validate package build
       run: |

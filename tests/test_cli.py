@@ -95,11 +95,6 @@ class TestCLICommands:
         except json.JSONDecodeError:
             pytest.fail("Output is not valid JSON")
 
-    def test_score_command_csv_output(self, runner):
-        """Test score command with CSV output."""
-        result = runner.invoke(app, ["score", "--text", "Test zin.", "--format", "csv"])
-        assert result.exit_code == 0
-        assert "document_score" in result.stdout  # CSV header
 
     def test_score_command_file_not_found(self, runner):
         """Test score command with non-existent file."""
@@ -150,19 +145,6 @@ class TestCLIOutputFormats:
         except json.JSONDecodeError:
             pytest.fail("Invalid JSON output")
 
-    def test_csv_output_format(self, runner):
-        """Test CSV output format structure."""
-        result = runner.invoke(app, ["score", "--text", "Test zin.", "--format", "csv"])
-        assert result.exit_code == 0
-
-        lines = result.stdout.strip().split("\n")
-        assert len(lines) >= 2  # Header + at least one data row
-
-        # Check header
-        header = lines[0].split(",")
-        expected_fields = ["document_score", "document_level", "sentence_count"]
-        for field in expected_fields:
-            assert field in header
 
     def test_table_output_format(self, runner):
         """Test default table output format."""
@@ -205,33 +187,6 @@ class TestCLIFileOperations:
             if output_file.exists():
                 output_file.unlink()
 
-    def test_output_to_file_csv(self, runner):
-        """Test outputting results to file in CSV format."""
-        with tempfile.NamedTemporaryFile(mode="w", suffix=".csv", delete=False) as f:
-            output_file = Path(f.name)
-
-        try:
-            result = runner.invoke(
-                app,
-                [
-                    "score",
-                    "--text",
-                    "Test zin.",
-                    "--format",
-                    "csv",
-                    "--output",
-                    str(output_file),
-                ],
-            )
-            assert result.exit_code == 0
-            assert output_file.exists()
-
-            # Check file content
-            content = output_file.read_text(encoding="utf-8")
-            assert "document_score" in content
-        finally:
-            if output_file.exists():
-                output_file.unlink()
 
     def test_input_from_file_encoding(self, runner):
         """Test reading files with different encodings."""

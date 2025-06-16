@@ -47,7 +47,7 @@ def score(
         None, "--output", "-o", help="Output file for results"
     ),
     format: str = typer.Option(
-        "table", "--format", help="Output format (table, json, csv)"
+        "table", "--format", help="Output format (table, json)"
     ),
     detailed: bool = typer.Option(
         False, "--detailed", "-d", help="Show detailed analysis"
@@ -72,13 +72,21 @@ def score(
         raise typer.Exit(1)
 
     # Analyze text
-    with Progress(
-        SpinnerColumn(),
-        TextColumn("[progress.description]{task.description}"),
-        console=console,
-    ) as progress:
-        task = progress.add_task("Analyzing text...", total=None)
+    if format == "table":
+        with Progress(
+            SpinnerColumn(),
+            TextColumn("[progress.description]{task.description}"),
+            console=console,
+        ) as progress:
+            task = progress.add_task("Analyzing text...", total=None)
 
+            try:
+                document = Document(input_text)
+                analysis = document.get_detailed_analysis()
+            except Exception as e:
+                console.print(f"[red]Error analyzing text: {e}[/red]")
+                raise typer.Exit(1)
+    else:
         try:
             document = Document(input_text)
             analysis = document.get_detailed_analysis()
@@ -116,47 +124,6 @@ def score(
             console.print(f"[green]Results saved to {output}[/green]")
         else:
             console.print(json_output)
-
-    elif format == "csv":
-        import csv
-        import io
-
-        csv_output = io.StringIO()
-        writer = csv.writer(csv_output)
-
-        if detailed:
-            writer.writerow(["sentence", "score", "level", "level_description"])
-            for sent in analysis["sentence_scores"]:
-                writer.writerow(
-                    [sent[0], sent[1], sent[2], get_difficulty_description(sent[2])]
-                )
-        else:
-            writer.writerow(
-                [
-                    "document_score",
-                    "document_level",
-                    "document_level_description",
-                    "sentence_count",
-                    "average_sentence_length",
-                ]
-            )
-            writer.writerow(
-                [
-                    analysis["document_score"],
-                    analysis["document_level"],
-                    get_difficulty_description(analysis["document_level"]),
-                    analysis["sentence_count"],
-                    analysis["average_sentence_length"],
-                ]
-            )
-
-        csv_content = csv_output.getvalue()
-
-        if output:
-            output.write_text(csv_content, encoding="utf-8")
-            console.print(f"[green]Results saved to {output}[/green]")
-        else:
-            console.print(csv_content)
 
     else:  # table format
         # Document summary
