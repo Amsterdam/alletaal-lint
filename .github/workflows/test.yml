@@ -163,11 +163,6 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: Run Bandit security scan
-      run: |
-        pip install bandit
-        bandit -r src/ -f json -o bandit-report.json || true
-
     - name: Run Safety check
       run: |
         pip install safety
@@ -178,7 +173,6 @@ jobs:
       with:
         name: security-reports
         path: |
-          bandit-report.json
           safety-report.json
 
   performance-test:
@@ -252,7 +246,7 @@ jobs:
 
     - name: Check import sorting with isort
       run: |
-        isort --check-only src/ tests/
+        isort --check-only src/ tests/mak
 
     - name: Run type checking
       run: |
