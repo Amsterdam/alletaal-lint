@@ -13,8 +13,6 @@ alletaal-lint is a Dutch text readability assessment tool based on the LiNT (Lee
 - **REST API** for integration with other systems
 - **Command-line interface** for batch processing and scripting
 - **Multiple output formats** (JSON, table)
-- **Scientific methodology** based on validated research
-- **Easy integration** with existing workflows
 
 ## Quick Start
 
@@ -270,28 +268,6 @@ services:
 - **Memory usage**: ~500MB (primarily spaCy model)
 - **Concurrent requests**: Supports multiple simultaneous API requests
 
-## Use Cases
-
-### Content Creation
-- Evaluate readability during writing
-- Optimize text for target audiences
-- Ensure accessibility compliance
-
-### Publishing & Media
-- Automated content quality checks
-- Editorial workflow integration
-- Reader accessibility assessment
-
-### Government & Public Services
-- Clear communication compliance
-- Public document assessment
-- Accessibility requirements
-
-### Education & Training
-- Learning material evaluation
-- Language proficiency assessment
-- Writing skill development
-
 ## API Reference
 
 ### Endpoints
@@ -358,32 +334,15 @@ pytest --cov=alletaal_lint
 pytest tests/test_core.py -v
 ```
 
-## Roadmap
-
-- [ ] Batch processing improvements
-- [ ] Additional output formats
-- [ ] Integration with popular CMS platforms
-- [ ] Enhanced linguistic features
-- [ ] Performance optimizations
-- [ ] Multi-language support framework
-
 ## License
 
 This project is licensed under the European Union Public Licence v. 1.2 (EUPL-1.2). See [LICENSE](LICENSE) for details.
 
 ## Support
 
-- **Documentation**: Available in this README, [METHODOLOGY.md](METHODOLOGY.md), and API docs
+- **Documentation**: Available in this README and API docs
 - **Issues**: [GitHub Issues](https://github.com/Amsterdam/alletaal-lint/issues)
 - **Contact**: innovatie@amsterdam.nl
-
-## Acknowledgments
-
-- **Gebruiker Centraal** for the LiNT methodology
-- **Centre for Digital Humanities (Utrecht University)** for T-Scan research
-- **City of Amsterdam** for open source development and maintenance
-- **spaCy team** for excellent NLP tools
-- **Contributors** who help improve this tool
 
 ---
 

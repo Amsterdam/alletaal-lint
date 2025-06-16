@@ -137,7 +137,7 @@ def create_app() -> FastAPI:
             },
             "score_variance": "May differ 3-7 points from T-Scan for complex sentences",
             "scientific_validity": "Maintains LiNT methodology principles",
-            "documentation": "See METHODOLOGY.md for detailed comparison",
+            "documentation": "",
         }
 
     @app.get("/health")

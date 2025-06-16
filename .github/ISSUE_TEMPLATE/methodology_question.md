@@ -22,5 +22,4 @@ What are you trying to do? (research, content optimization, etc.)
 
 **Already checked**
 - [ ] README.md
-- [ ] METHODOLOGY.md
 - [ ] Existing issues

@@ -10,8 +10,6 @@ scores that differ from the original T-Scan implementation due to different
 parsing approaches and feature extraction methods. The core LiNT formula
 remains unchanged, ensuring scientific validity while benefiting from
 contemporary NLP advances.
-
-See METHODOLOGY.md for detailed information about implementation differences.
 """
 
 import math

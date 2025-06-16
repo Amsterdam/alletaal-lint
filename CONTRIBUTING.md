@@ -41,7 +41,7 @@ Run `make format` and `make lint` before submitting.
 
 ## Need Help?
 
-- Check the [README](README.md) and [METHODOLOGY](METHODOLOGY.md) 
+- Check the [README](README.md)
 - Look at existing [issues](https://github.com/Amsterdam/alletaal-lint/issues)
 - Ask questions in a new issue
 

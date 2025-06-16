@@ -119,7 +119,6 @@ example-cli:
 	alletaal-lint score --text "Rijkswaterstaat werkt het hele jaar op de A9 tussen Badhoevedorp en Holendrecht en aan de Ring A10 Zuid , project Zuidasdok." --detailed
 	@echo ""
 	@echo "Note: Scores may differ from T-Scan due to modern NLP implementation differences."
-	@echo "See METHODOLOGY.md for detailed comparison."
 
 debug-sentence:
 	@echo "Debugging specific sentence..."
@@ -143,14 +142,6 @@ dev-setup: install-dev install-model
 
 ci-test: lint type-check test-cov
 	@echo "All CI checks passed!"
-
-ci-local: format lint type-check test-cov
-	@echo "Running local CI simulation..."
-	@echo "✓ Code formatting"
-	@echo "✓ Linting" 
-	@echo "✓ Type checking"
-	@echo "✓ Tests with coverage"
-	@echo "All local CI checks passed! Ready for GitHub Actions."
 
 # Performance testing
 perf-test:
