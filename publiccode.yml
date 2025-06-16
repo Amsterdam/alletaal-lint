@@ -1,0 +1,73 @@
+# This repository adheres to the publiccode.yml standard by including this 
+# metadata file that makes public software easily discoverable.
+# More info at https://github.com/italia/publiccode.yml
+
+publiccodeYmlVersion: '0.2'
+categories:
+  - text-processing
+  - natural-language-processing
+  - accessibility
+description:
+  en:
+    features:
+      - Dutch text readability assessment
+      - LiNT (Leesbaarheids­instrument voor Nederlandse Teksten) scoring
+      - REST API for integration
+      - Command-line interface
+      - Sentence and document level analysis
+      - Multiple output formats (JSON, CSV, table)
+    genericName: Text Readability Assessment Tool
+    longDescription: |
+      alletaal-lint is a Dutch text readability assessment tool based on the LiNT 
+      (Leesbaarheids­instrument voor Nederlandse Teksten) methodology. It provides 
+      automated scoring of Dutch text readability using linguistic features such as 
+      word frequency, syntactic complexity, content word density, and concreteness.
+      
+      The tool is designed to help content creators, editors, and organizations 
+      evaluate and improve the accessibility of their Dutch text content. It 
+      provides readability scores on a scale of 1-4, where 1 represents very 
+      difficult text and 4 represents easy-to-read text.
+      
+      Key features include:
+      - Sentence-level and document-level readability analysis
+      - REST API for integration with other systems
+      - Command-line interface for batch processing
+      - Multiple output formats for different use cases
+      - Based on scientific research and validated methodology
+      
+      The tool is based on research from Gebruiker Centraal and builds upon the 
+      T-Scan project from the Centre for Digital Humanities at Utrecht University.
+    shortDescription: >-
+      Dutch text readability assessment tool using LiNT methodology for 
+      evaluating text accessibility and complexity.
+developmentStatus: stable
+it:
+  countryExtensionVersion: '0.2'
+  piattaforme:
+    spid: false
+legal:
+  license: EUPL-1.2
+  mainCopyrightOwner: City of Amsterdam
+  repoOwner: City of Amsterdam
+localisation:
+  availableLanguages:
+    - nl
+  localisationReady: true
+maintenance:
+  contractors:
+    - name: City of Amsterdam
+      email: innovatie@amsterdam.nl
+      website: https://www.amsterdam.nl
+  type: internal
+name: alletaal-lint
+platforms:
+  - linux
+  - windows
+  - mac
+releaseDate: '2024-12-16'
+roadmap: 'https://github.com/Amsterdam/alletaal-lint/blob/main/README.md#roadmap'
+softwareType: standalone/desktop
+softwareVersion: 1.0.0
+url: 'https://github.com/Amsterdam/alletaal-lint'
+usedBy:
+  - City of Amsterdam

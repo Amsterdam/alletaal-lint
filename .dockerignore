@@ -1,0 +1,102 @@
+# Git and version control
+.git
+.gitignore
+.gitattributes
+
+# Documentation
+README.md
+CONTRIBUTING.md
+SECURITY.md
+docs/
+
+# Development files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Testing and coverage
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+htmlcov/
+
+# Virtual environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# IDEs
+.spyderproject
+.spyproject
+.ropeproject
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+# Development tools
+.pre-commit-config.yaml
+Makefile
+
+# Temporary files
+temp/
+tmp/
+test_output/
+*.log
+
+# Docker files (don't copy into image)
+Dockerfile*
+docker-compose*.yml
+.dockerignore
