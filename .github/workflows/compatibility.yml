@@ -9,6 +9,9 @@ on:
     # Run weekly to catch dependency issues
     - cron: '0 6 * * 1'
 
+permissions:
+  contents: read
+
 jobs:
   test-latest-versions:
     runs-on: ubuntu-latest
