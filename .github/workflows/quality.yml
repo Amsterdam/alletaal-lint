@@ -51,6 +51,7 @@ jobs:
 
     - name: Dependency vulnerability check with Safety
       run: |
+        pip install safety
         safety check --json --output safety-report.json
         safety check
 

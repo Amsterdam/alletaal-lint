@@ -16,7 +16,7 @@ See METHODOLOGY.md for detailed information about implementation differences.
 
 import math
 from collections import defaultdict
-from typing import List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 import spacy
 from wordfreq import zipf_frequency
@@ -130,7 +130,7 @@ class LintScorer:
 class Sentence:
     """Sentence-level readability analysis."""
 
-    def __init__(self, text: str, nlp_model: Optional[spacy.Language] = None) -> None:
+    def __init__(self, text: str, nlp_model: Optional[Any] = None) -> None:
         self.text = text
         self.nlp = nlp_model or self._load_nlp_model()
         self.doc = self.nlp(text)
@@ -138,7 +138,7 @@ class Sentence:
         self.words = [WordStats(token) for token in self.tokens]
 
     @staticmethod
-    def _load_nlp_model() -> spacy.Language:
+    def _load_nlp_model() -> Any:
         """Load Dutch spaCy model."""
         try:
             return spacy.load("nl_core_news_sm")
@@ -248,7 +248,7 @@ class Document:
             results.append((sentence.text, score, level))
         return results
 
-    def get_detailed_analysis(self) -> dict:
+    def get_detailed_analysis(self) -> Dict[str, Any]:
         """Get detailed readability analysis."""
         doc_score = self.calculate_lint_score()
         doc_level = self.get_difficulty_level()
