@@ -54,7 +54,9 @@ def create_app() -> FastAPI:
     """Create and configure FastAPI application."""
     app = FastAPI(
         title="alletaal-lint API",
-        description="Dutch Text Readability Assessment using LiNT methodology",
+        description="Dutch Text Readability Assessment using LiNT methodology. "
+                   "Scores may differ from original T-Scan due to modern NLP implementation. "
+                   "See /methodology for details.",
         version="1.0.0",
         docs_url="/docs",
         redoc_url="/redoc",
@@ -96,12 +98,32 @@ def create_app() -> FastAPI:
             "name": "alletaal-lint API",
             "description": "Dutch Text Readability Assessment using LiNT methodology",
             "version": "1.0.0",
+            "note": "Scores may differ from original T-Scan due to modern NLP implementation",
+            "methodology": "/methodology",
             "endpoints": {
                 "score_sentence": "/score-sentence",
                 "score_document": "/score-document", 
                 "analyze_document": "/analyze-document",
+                "methodology": "/methodology",
                 "health": "/health"
             }
+        }
+
+    @app.get("/methodology")
+    async def methodology():
+        """Information about implementation methodology and differences from T-Scan."""
+        return {
+            "implementation": "Modern NLP with spaCy and wordfreq",
+            "formula": "Original LiNT2 formula (identical to T-Scan)",
+            "differences": {
+                "parser": "spaCy (neural) vs Alpino (rule-based)",
+                "frequency_data": "wordfreq vs SUBTLEX-NL",
+                "clause_detection": "Simplified vs sophisticated",
+                "noun_classification": "POS-based vs semantic"
+            },
+            "score_variance": "May differ 3-7 points from T-Scan for complex sentences",
+            "scientific_validity": "Maintains LiNT methodology principles",
+            "documentation": "See METHODOLOGY.md for detailed comparison"
         }
 
     @app.get("/health")

@@ -116,6 +116,13 @@ example-cli:
 	@echo "Running CLI examples..."
 	alletaal-lint sentence "De kat zit op de mat."
 	alletaal-lint score --text "Rijkswaterstaat werkt het hele jaar op de A9 tussen Badhoevedorp en Holendrecht en aan de Ring A10 Zuid , project Zuidasdok." --detailed
+	@echo ""
+	@echo "Note: Scores may differ from T-Scan due to modern NLP implementation differences."
+	@echo "See METHODOLOGY.md for detailed comparison."
+
+debug-sentence:
+	@echo "Debugging specific sentence..."
+	@python debug_sentence.py
 
 example-api:
 	@echo "Starting API server in background..."

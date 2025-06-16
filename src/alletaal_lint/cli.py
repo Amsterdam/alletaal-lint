@@ -20,7 +20,8 @@ from .core import Document, Sentence
 
 app = typer.Typer(
     name="alletaal-lint",
-    help="Dutch Text Readability Assessment using LiNT methodology",
+    help="Dutch Text Readability Assessment using LiNT methodology. "
+         "Note: Scores may differ from original T-Scan due to modern NLP implementation.",
     no_args_is_help=True,
 )
 

@@ -4,6 +4,14 @@ Core LiNT scoring functionality for Dutch text readability assessment.
 This module implements the core components of the LiNT (Leesbaarheids­instrument 
 voor Nederlandse Teksten) readability assessment tool, based on the research from
 Gebruiker Centraal and the T-Scan project.
+
+Note: This implementation uses modern NLP tools (spaCy, wordfreq) and may produce
+scores that differ from the original T-Scan implementation due to different
+parsing approaches and feature extraction methods. The core LiNT formula
+remains unchanged, ensuring scientific validity while benefiting from
+contemporary NLP advances.
+
+See METHODOLOGY.md for detailed information about implementation differences.
 """
 
 import math
