@@ -25,7 +25,7 @@ from wordfreq import zipf_frequency
 class WordStats:
     """Statistics and linguistic features for individual words."""
     
-    def __init__(self, token):
+    def __init__(self, token: spacy.tokens.Token) -> None:
         self.token = token
         self.text = token.text
         self.lemma = token.lemma_
@@ -33,21 +33,23 @@ class WordStats:
         self.tag = token.tag_.split('|')[0] if token.tag_ else ''
         self.sub_tags = token.tag_.split('|')[1:] if token.tag_ else []
         self.pos = token.pos_
-        self.gender = None
-        self.number = None
+        self.gender: Optional[str] = None
+        self.number: Optional[str] = None
         self._parse_morphology(token.morph)
 
-    def _get_dependency_distance(self, token) -> int:
+    def _get_dependency_distance(self, token: spacy.tokens.Token) -> int:
         """Calculate dependency distance between token and its head."""
         if token.dep_ in ['punct']:
             return 0
-        return abs(token.head.i - token.i)
+        return int(abs(token.head.i - token.i))
 
-    def _parse_morphology(self, morph):
+    def _parse_morphology(self, morph: spacy.tokens.MorphAnalysis) -> None:
         """Parse morphological features from spaCy token."""
         if hasattr(morph, 'get'):
-            self.gender = morph.get('Gender')
-            self.number = morph.get('Number')
+            gender_list = morph.get('Gender', [])
+            number_list = morph.get('Number', [])
+            self.gender = gender_list[0] if gender_list else None
+            self.number = number_list[0] if number_list else None
 
     def get_word_frequency(self) -> Optional[float]:
         """Get word frequency using zipf scale."""
@@ -117,7 +119,7 @@ class LintScorer:
 class Sentence:
     """Sentence-level readability analysis."""
     
-    def __init__(self, text: str, nlp_model=None):
+    def __init__(self, text: str, nlp_model: Optional[spacy.Language] = None) -> None:
         self.text = text
         self.nlp = nlp_model or self._load_nlp_model()
         self.doc = self.nlp(text)
@@ -125,7 +127,7 @@ class Sentence:
         self.words = [WordStats(token) for token in self.tokens]
         
     @staticmethod
-    def _load_nlp_model():
+    def _load_nlp_model() -> spacy.Language:
         """Load Dutch spaCy model."""
         try:
             return spacy.load('nl_core_news_sm')

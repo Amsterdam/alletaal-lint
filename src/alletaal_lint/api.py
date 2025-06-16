@@ -92,7 +92,7 @@ def create_app() -> FastAPI:
         return text.strip()
 
     @app.get("/")
-    async def root():
+    async def root() -> Dict[str, Any]:
         """Root endpoint with basic API information."""
         return {
             "name": "alletaal-lint API",
@@ -110,7 +110,7 @@ def create_app() -> FastAPI:
         }
 
     @app.get("/methodology")
-    async def methodology():
+    async def methodology() -> Dict[str, Any]:
         """Information about implementation methodology and differences from T-Scan."""
         return {
             "implementation": "Modern NLP with spaCy and wordfreq",
@@ -127,7 +127,7 @@ def create_app() -> FastAPI:
         }
 
     @app.get("/health")
-    async def health_check():
+    async def health_check() -> Dict[str, str]:
         """Health check endpoint."""
         try:
             # Test that spaCy model can be loaded
@@ -137,7 +137,7 @@ def create_app() -> FastAPI:
             raise HTTPException(status_code=503, detail=f"Service unhealthy: {str(e)}")
 
     @app.post("/score-sentence", response_model=SentenceScoreResponse)
-    async def score_sentence(input_data: TextInput):
+    async def score_sentence(input_data: TextInput) -> SentenceScoreResponse:
         """Score a single sentence for readability."""
         try:
             clean_text = remove_markdown(input_data.text)
@@ -151,7 +151,7 @@ def create_app() -> FastAPI:
             raise HTTPException(status_code=500, detail=f"Error scoring sentence: {str(e)}")
 
     @app.post("/score-document", response_model=DocumentScoreResponse)
-    async def score_document(input_data: TextInput):
+    async def score_document(input_data: TextInput) -> DocumentScoreResponse:
         """Score a document for readability."""
         try:
             clean_text = remove_markdown(input_data.text)
@@ -165,7 +165,7 @@ def create_app() -> FastAPI:
             raise HTTPException(status_code=500, detail=f"Error scoring document: {str(e)}")
 
     @app.post("/analyze-document", response_model=DetailedDocumentResponse)
-    async def analyze_document(input_data: TextInput):
+    async def analyze_document(input_data: TextInput) -> DetailedDocumentResponse:
         """Provide detailed analysis of document readability."""
         try:
             clean_text = remove_markdown(input_data.text)
