@@ -22,6 +22,7 @@ help:
 	@echo "  example-cli   Run CLI examples"
 	@echo "  example-api   Test API endpoints"
 	@echo "  perf-test     Run performance tests"
+	@echo "  ci-local      Run all CI checks locally"
 
 # Installation targets
 install:
@@ -142,6 +143,14 @@ dev-setup: install-dev install-model
 
 ci-test: lint type-check test-cov
 	@echo "All CI checks passed!"
+
+ci-local: format lint type-check test-cov
+	@echo "Running local CI simulation..."
+	@echo "✓ Code formatting"
+	@echo "✓ Linting" 
+	@echo "✓ Type checking"
+	@echo "✓ Tests with coverage"
+	@echo "All local CI checks passed! Ready for GitHub Actions."
 
 # Performance testing
 perf-test:

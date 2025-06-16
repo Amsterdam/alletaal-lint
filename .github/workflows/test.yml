@@ -1,0 +1,274 @@
+name: Test Suite
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python-version: ["3.9", "3.10", "3.11", "3.12"]
+        exclude:
+          # Exclude some combinations to reduce job count
+          - os: windows-latest
+            python-version: "3.9"
+          - os: macos-latest
+            python-version: "3.9"
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Cache pip dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/pyproject.toml') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install build pytest pytest-cov pytest-xdist
+        pip install -e ".[dev]"
+
+    - name: Download spaCy Dutch model
+      run: |
+        python -m spacy download nl_core_news_sm
+
+    - name: Run linting
+      run: |
+        flake8 src/ tests/ --count --select=E9,F63,F7,F82 --show-source --statistics
+        flake8 src/ tests/ --count --exit-zero --max-complexity=10 --max-line-length=88 --statistics
+
+    - name: Run type checking
+      run: |
+        mypy src/alletaal_lint/ --ignore-missing-imports
+
+    - name: Run tests with coverage
+      run: |
+        pytest tests/ -v --cov=alletaal_lint --cov-report=xml --cov-report=term-missing
+
+    - name: Upload coverage to Codecov
+      if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.11'
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./coverage.xml
+        fail_ci_if_error: false
+
+  integration-test:
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.11"
+
+    - name: Install package
+      run: |
+        python -m pip install --upgrade pip
+        pip install -e .
+
+    - name: Download spaCy model
+      run: |
+        python -m spacy download nl_core_news_sm
+
+    - name: Test CLI functionality
+      run: |
+        # Test sentence scoring
+        alletaal-lint sentence "De kat zit op de mat."
+        
+        # Test document scoring with JSON output
+        echo '{"text": "Dit is een test. Het bevat twee zinnen."}' > test_input.json
+        alletaal-lint score --text "Dit is een test. Het bevat twee zinnen." --format json
+        
+        # Test help commands
+        alletaal-lint --help
+        alletaal-lint sentence --help
+        alletaal-lint score --help
+
+    - name: Test API functionality
+      run: |
+        # Start server in background
+        alletaal-lint server --host 127.0.0.1 --port 8000 &
+        SERVER_PID=$!
+        
+        # Wait for server to start
+        sleep 5
+        
+        # Test health endpoint
+        curl -f http://127.0.0.1:8000/health
+        
+        # Test methodology endpoint
+        curl -f http://127.0.0.1:8000/methodology
+        
+        # Test sentence scoring endpoint
+        curl -X POST "http://127.0.0.1:8000/score-sentence" \
+             -H "Content-Type: application/json" \
+             -d '{"text": "Dit is een test zin."}'
+        
+        # Test document scoring endpoint
+        curl -X POST "http://127.0.0.1:8000/score-document" \
+             -H "Content-Type: application/json" \
+             -d '{"text": "Dit is een test. Het bevat twee zinnen."}'
+        
+        # Stop server
+        kill $SERVER_PID
+
+  docker-test:
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Build Docker image
+      run: |
+        docker build -t alletaal-lint-test .
+
+    - name: Test Docker container
+      run: |
+        # Run container in background
+        docker run -d -p 8000:8000 --name alletaal-lint-test alletaal-lint-test
+        
+        # Wait for container to start
+        sleep 10
+        
+        # Test health endpoint
+        curl -f http://localhost:8000/health
+        
+        # Test API endpoint
+        curl -X POST "http://localhost:8000/score-sentence" \
+             -H "Content-Type: application/json" \
+             -d '{"text": "Docker test zin."}'
+        
+        # Stop and remove container
+        docker stop alletaal-lint-test
+        docker rm alletaal-lint-test
+
+  security-scan:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Run Bandit security scan
+      run: |
+        pip install bandit
+        bandit -r src/ -f json -o bandit-report.json || true
+
+    - name: Run Safety check
+      run: |
+        pip install safety
+        pip freeze | safety check --json --output safety-report.json || true
+
+    - name: Upload security reports
+      uses: actions/upload-artifact@v3
+      with:
+        name: security-reports
+        path: |
+          bandit-report.json
+          safety-report.json
+
+  performance-test:
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.11"
+
+    - name: Install package
+      run: |
+        python -m pip install --upgrade pip
+        pip install -e .
+
+    - name: Download spaCy model
+      run: |
+        python -m spacy download nl_core_news_sm
+
+    - name: Run performance tests
+      run: |
+        python -c "
+        import time
+        from alletaal_lint import Document, Sentence
+        
+        # Test sentence performance
+        test_sentence = 'Dit is een test zin voor performance meting.'
+        start = time.time()
+        for i in range(10):
+            sentence = Sentence(test_sentence)
+            score = sentence.calculate_lint_score()
+        end = time.time()
+        avg_time = (end - start) / 10
+        print(f'Average sentence processing time: {avg_time:.4f}s')
+        
+        # Test document performance
+        test_doc = 'Dit is een test. ' * 100
+        start = time.time()
+        doc = Document(test_doc)
+        score = doc.calculate_lint_score()
+        end = time.time()
+        print(f'Document processing time ({len(test_doc)} chars): {end-start:.4f}s')
+        
+        # Performance assertions
+        assert avg_time < 1.0, f'Sentence processing too slow: {avg_time}s'
+        assert (end-start) < 10.0, f'Document processing too slow: {end-start}s'
+        print('Performance tests passed!')
+        "
+
+  code-quality:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.11"
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -e ".[dev]"
+
+    - name: Check code formatting with Black
+      run: |
+        black --check src/ tests/
+
+    - name: Check import sorting with isort
+      run: |
+        isort --check-only src/ tests/
+
+    - name: Run comprehensive linting
+      run: |
+        flake8 src/ tests/
+
+    - name: Run type checking
+      run: |
+        mypy src/alletaal_lint/
+
+    - name: Check for security issues
+      run: |
+        pip install bandit
+        bandit -r src/
+
+    - name: Validate package build
+      run: |
+        python -m build
+        pip install dist/*.whl
+        python -c "import alletaal_lint; print('Package imports successfully')"

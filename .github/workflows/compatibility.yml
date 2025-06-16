@@ -1,0 +1,318 @@
+name: Compatibility Testing
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    # Run weekly to catch dependency issues
+    - cron: '0 6 * * 1'
+
+jobs:
+  test-minimum-versions:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.9"]
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install minimum supported versions
+      run: |
+        python -m pip install --upgrade pip
+        # Install minimum versions as specified in pyproject.toml
+        pip install spacy==3.7.0
+        pip install wordfreq==3.1.0
+        pip install fastapi==0.115.0
+        pip install uvicorn==0.34.0
+        pip install pydantic==2.10.0
+        pip install click==8.1.0
+        pip install rich==13.0.0
+        pip install typer==0.15.0
+
+    - name: Install package
+      run: |
+        pip install -e .
+
+    - name: Download spaCy model
+      run: |
+        python -m spacy download nl_core_news_sm
+
+    - name: Test basic functionality
+      run: |
+        python -c "
+        from alletaal_lint import Document, Sentence
+        
+        # Test basic functionality with minimum versions
+        sentence = Sentence('Test zin.')
+        score = sentence.calculate_lint_score()
+        assert isinstance(score, float)
+        assert 0 <= score <= 100
+        
+        doc = Document('Test document. Tweede zin.')
+        doc_score = doc.calculate_lint_score()
+        assert isinstance(doc_score, float)
+        assert 0 <= doc_score <= 100
+        
+        print('Minimum version compatibility test passed!')
+        "
+
+  test-latest-versions:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.12"]
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install latest versions
+      run: |
+        python -m pip install --upgrade pip
+        # Install latest versions
+        pip install --upgrade spacy wordfreq fastapi uvicorn pydantic click rich typer
+
+    - name: Install package
+      run: |
+        pip install -e .
+
+    - name: Download spaCy model
+      run: |
+        python -m spacy download nl_core_news_sm
+
+    - name: Test with latest versions
+      run: |
+        python -c "
+        from alletaal_lint import Document, Sentence
+        
+        # Test functionality with latest versions
+        sentence = Sentence('Test zin met de nieuwste versies.')
+        score = sentence.calculate_lint_score()
+        assert isinstance(score, float)
+        assert 0 <= score <= 100
+        
+        doc = Document('Test document. Tweede zin. Derde zin.')
+        doc_score = doc.calculate_lint_score()
+        assert isinstance(doc_score, float)
+        assert 0 <= doc_score <= 100
+        
+        print('Latest version compatibility test passed!')
+        "
+
+  test-different-locales:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.11"
+
+    - name: Install package
+      run: |
+        python -m pip install --upgrade pip
+        pip install -e .
+
+    - name: Download spaCy model
+      run: |
+        python -m spacy download nl_core_news_sm
+
+    - name: Test with different locales
+      run: |
+        # Test with C locale
+        LC_ALL=C python -c "
+        from alletaal_lint import Document
+        doc = Document('Test in C locale.')
+        score = doc.calculate_lint_score()
+        print(f'C locale score: {score}')
+        "
+        
+        # Test with Dutch locale (if available)
+        LC_ALL=nl_NL.UTF-8 python -c "
+        from alletaal_lint import Document
+        doc = Document('Test in Nederlandse locale.')
+        score = doc.calculate_lint_score()
+        print(f'Dutch locale score: {score}')
+        " || echo "Dutch locale not available, skipping"
+
+  test-edge-cases:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.11"
+
+    - name: Install package
+      run: |
+        python -m pip install --upgrade pip
+        pip install -e .
+
+    - name: Download spaCy model
+      run: |
+        python -m spacy download nl_core_news_sm
+
+    - name: Test edge cases
+      run: |
+        python -c "
+        from alletaal_lint import Document, Sentence
+        
+        # Test edge cases
+        test_cases = [
+            '',  # Empty string
+            ' ',  # Whitespace only
+            'a',  # Single character
+            '!@#$%^&*()',  # Punctuation only
+            'Test.',  # Single sentence
+            'Test\n\nwith\n\nnewlines.',  # Multiple newlines
+            'Zeer lange zin met heel veel woorden die eigenlijk veel te lang is voor normale leesbaarheid maar toch getest moet worden omdat edge cases belangrijk zijn.',  # Very long sentence
+            'Test met 123 nummers en @#$ symbolen.',  # Mixed content
+            'ALLES IN HOOFDLETTERS.',  # All caps
+            'test zonder hoofdletters.',  # No capitals
+        ]
+        
+        for i, text in enumerate(test_cases):
+            try:
+                if text.strip():  # Only test non-empty texts
+                    doc = Document(text)
+                    score = doc.calculate_lint_score()
+                    assert isinstance(score, float)
+                    assert 0 <= score <= 100
+                    print(f'Test case {i+1}: PASSED (score: {score})')
+                else:
+                    doc = Document(text)
+                    score = doc.calculate_lint_score()
+                    print(f'Test case {i+1}: PASSED (empty text, score: {score})')
+            except Exception as e:
+                print(f'Test case {i+1}: FAILED - {e}')
+                raise
+        
+        print('All edge case tests passed!')
+        "
+
+  test-concurrency:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.11"
+
+    - name: Install package
+      run: |
+        python -m pip install --upgrade pip
+        pip install -e .
+
+    - name: Download spaCy model
+      run: |
+        python -m spacy download nl_core_news_sm
+
+    - name: Test concurrent processing
+      run: |
+        python -c "
+        import threading
+        import time
+        from alletaal_lint import Document
+        
+        results = []
+        errors = []
+        
+        def process_text(text, thread_id):
+            try:
+                doc = Document(f'{text} Thread {thread_id}')
+                score = doc.calculate_lint_score()
+                results.append((thread_id, score))
+            except Exception as e:
+                errors.append((thread_id, str(e)))
+        
+        # Create and start multiple threads
+        threads = []
+        for i in range(10):
+            thread = threading.Thread(
+                target=process_text, 
+                args=('Dit is een test zin voor concurrent verwerking.', i)
+            )
+            threads.append(thread)
+            thread.start()
+        
+        # Wait for all threads to complete
+        for thread in threads:
+            thread.join()
+        
+        # Check results
+        if errors:
+            print(f'Errors in concurrent processing: {errors}')
+            raise Exception('Concurrent processing failed')
+        
+        print(f'Concurrent processing successful: {len(results)} results')
+        assert len(results) == 10
+        print('Concurrency test passed!')
+        "
+
+  test-memory-usage:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.11"
+
+    - name: Install package and memory profiler
+      run: |
+        python -m pip install --upgrade pip
+        pip install -e .
+        pip install memory-profiler psutil
+
+    - name: Download spaCy model
+      run: |
+        python -m spacy download nl_core_news_sm
+
+    - name: Test memory usage
+      run: |
+        python -c "
+        import psutil
+        import os
+        from alletaal_lint import Document
+        
+        process = psutil.Process(os.getpid())
+        
+        # Measure initial memory
+        initial_memory = process.memory_info().rss / 1024 / 1024  # MB
+        print(f'Initial memory usage: {initial_memory:.2f} MB')
+        
+        # Process multiple documents
+        for i in range(100):
+            text = f'Dit is test document nummer {i}. Het bevat meerdere zinnen voor de test. Deze zin is de derde zin van het document.'
+            doc = Document(text)
+            score = doc.calculate_lint_score()
+        
+        # Measure final memory
+        final_memory = process.memory_info().rss / 1024 / 1024  # MB
+        memory_increase = final_memory - initial_memory
+        
+        print(f'Final memory usage: {final_memory:.2f} MB')
+        print(f'Memory increase: {memory_increase:.2f} MB')
+        
+        # Assert reasonable memory usage (should not increase by more than 500MB for 100 docs)
+        assert memory_increase < 500, f'Memory usage too high: {memory_increase} MB'
+        print('Memory usage test passed!')
+        "
