@@ -113,16 +113,16 @@ class LintScorer:
             score: LiNT score (0-100)
 
         Returns:
-            Difficulty level (1-4, where 1 is most difficult)
+            Difficulty level (1-4, where 1 is easiest)
         """
         if score <= 36:
-            return 1
-        elif score <= 51:
-            return 2
-        elif score <= 61.5:
-            return 3
-        else:
             return 4
+        elif score <= 51:
+            return 3
+        elif score <= 61.5:
+            return 2
+        else:
+            return 1
 
 
 class Sentence:
