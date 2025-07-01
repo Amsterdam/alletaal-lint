@@ -60,7 +60,7 @@ score = doc.calculate_lint_score()
 level = doc.get_difficulty_level()
 
 print(f"Document score: {score}")
-print(f"Difficulty level: {level}")  # 1-4 (1=very difficult, 4=easy)
+print(f"Difficulty level: {level}")  # 1-4 (1=easy, 4=very difficult)
 
 # Analyze individual sentences
 for sentence_text, sentence_score, sentence_level in doc.get_sentence_scores():
@@ -105,10 +105,10 @@ LiNT scores range from 0-100, with higher scores indicating more readable text:
 
 | Score Range | Level | Description |
 |-------------|-------|-------------|
-| 0-36 | 1 | Very Difficult |
-| 37-51 | 2 | Difficult |
-| 52-61.5 | 3 | Moderate |
-| 61.5+ | 4 | Easy |
+| 0-36 | 4 | Very Difficult |
+| 37-51 | 3 | Difficult |
+| 52-61.5 | 2 | Moderate |
+| 61.5+ | 1 | Easy |
 
 ### Linguistic Features
 
