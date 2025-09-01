@@ -13,7 +13,7 @@ jobs:
   lint-and-format:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
 
     - name: Set up Python 3.11
       uses: actions/setup-python@v5
@@ -45,7 +45,7 @@ jobs:
   security-analysis:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
 
     - name: Set up Python 3.11
       uses: actions/setup-python@v5
@@ -55,7 +55,7 @@ jobs:
   documentation-check:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
 
     - name: Set up Python 3.11
       uses: actions/setup-python@v5
@@ -102,7 +102,7 @@ jobs:
   dependency-analysis:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
 
     - name: Set up Python 3.11
       uses: actions/setup-python@v5
@@ -126,7 +126,7 @@ jobs:
   performance-analysis:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
 
     - name: Set up Python 3.11
       uses: actions/setup-python@v5
@@ -219,7 +219,7 @@ jobs:
   api-schema-validation:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
 
     - name: Set up Python 3.11
       uses: actions/setup-python@v5
@@ -277,7 +277,7 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request'
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
       with:
         fetch-depth: 0
 
