@@ -255,6 +255,17 @@ class TestCLIIntegration:
         assert result.exit_code == 0
         assert "4" in result.stdout  # Should show 4 sentences
 
+    def test_difficulty_labels_match_core_direction(self):
+        """Verify CLI labels match core scoring direction (1=easy, 4=very difficult)."""
+        from alletaal_lint.cli import get_difficulty_color, get_difficulty_description
+
+        assert get_difficulty_description(1) == "Easy"
+        assert get_difficulty_description(2) == "Moderate"
+        assert get_difficulty_description(3) == "Difficult"
+        assert get_difficulty_description(4) == "Very Difficult"
+        assert get_difficulty_color(1) == "green"
+        assert get_difficulty_color(4) == "red"
+
     def test_server_command_help(self, runner):
         """Test server command help (without actually starting server)."""
         result = runner.invoke(app, ["server", "--help"])

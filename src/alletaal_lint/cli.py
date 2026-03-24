@@ -7,7 +7,7 @@ This module provides a CLI for the LiNT readability assessment tool.
 import json
 import sys
 from pathlib import Path
-from typing import List, Optional
+from typing import Optional
 
 import typer
 from rich.console import Console
@@ -29,13 +29,13 @@ console = Console()
 
 def get_difficulty_description(level: int) -> str:
     """Get human-readable description of difficulty level."""
-    descriptions = {1: "Very Difficult", 2: "Difficult", 3: "Moderate", 4: "Easy"}
+    descriptions = {1: "Easy", 2: "Moderate", 3: "Difficult", 4: "Very Difficult"}
     return descriptions.get(level, "Unknown")
 
 
 def get_difficulty_color(level: int) -> str:
     """Get color for difficulty level display."""
-    colors = {1: "red", 2: "orange", 3: "yellow", 4: "green"}
+    colors = {1: "green", 2: "yellow", 3: "orange", 4: "red"}
     return colors.get(level, "white")
 
 
@@ -76,7 +76,7 @@ def score(
             TextColumn("[progress.description]{task.description}"),
             console=console,
         ) as progress:
-            task = progress.add_task("Analyzing text...", total=None)
+            progress.add_task("Analyzing text...", total=None)
 
             try:
                 document = Document(input_text)
@@ -135,7 +135,9 @@ def score(
         summary_table.add_row("LiNT Score", f"{analysis['document_score']}")
         summary_table.add_row(
             "Difficulty Level",
-            f"[{level_color}]{analysis['document_level']} - {level_desc}[/{level_color}]",
+            f"[{level_color}]"
+            f"{analysis['document_level']} - {level_desc}"
+            f"[/{level_color}]",
         )
         summary_table.add_row("Sentences", str(analysis["sentence_count"]))
         summary_table.add_row(
@@ -187,7 +189,8 @@ def sentence(
             Panel(
                 f"[bold]Sentence:[/bold] {text}\n\n"
                 f"[bold]LiNT Score:[/bold] {score}\n"
-                f"[bold]Difficulty Level:[/bold] [{color}]{level} - {level_desc}[/{color}]",
+                f"[bold]Difficulty Level:[/bold] "
+                f"[{color}]{level} - {level_desc}[/{color}]",
                 title="Sentence Readability Analysis",
             )
         )
@@ -230,8 +233,6 @@ def server(
     try:
         import uvicorn
 
-        from .api import app as fastapi_app
-
         console.print(f"[green]Starting server on {host}:{port}[/green]")
         console.print(
             f"[blue]API documentation available at http://{host}:{port}/docs[/blue]"
@@ -267,6 +268,23 @@ def install_model() -> None:
     except subprocess.CalledProcessError as e:
         console.print(f"[red]Error installing model: {e}[/red]")
         raise typer.Exit(1)
+
+
+@app.command()
+def openapi(
+    output: Optional[Path] = typer.Option(
+        None, "--output", "-o", help="Output file path"
+    ),
+) -> None:
+    """Export OpenAPI specification as JSON."""
+    from .api import create_app
+
+    spec = json.dumps(create_app().openapi(), indent=2, ensure_ascii=False)
+    if output:
+        output.write_text(spec, encoding="utf-8")
+        console.print(f"[green]OpenAPI spec written to {output}[/green]")
+    else:
+        console.print(spec)
 
 
 @app.command()

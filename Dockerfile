@@ -1,5 +1,5 @@
 # Multi-stage build for alletaal-lint
-FROM python:3.11-slim as builder
+FROM python:3.12-slim as builder
 
 # Set environment variables
 ENV PYTHONDONTWRITEBYTECODE=1 \
@@ -30,7 +30,7 @@ RUN python -m build --wheel && \
 RUN python -m spacy download nl_core_news_sm
 
 # Production stage
-FROM python:3.11-slim as production
+FROM python:3.12-slim as production
 
 # Set environment variables
 ENV PYTHONDONTWRITEBYTECODE=1 \
