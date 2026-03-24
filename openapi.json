@@ -1,0 +1,399 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "alletaal-lint API",
+    "description": "Dutch Text Readability Assessment using LiNT methodology. Scores may differ from original T-Scan due to modern NLP implementation. See /methodology for details.",
+    "version": "1.1.0"
+  },
+  "paths": {
+    "/": {
+      "get": {
+        "summary": "Root",
+        "description": "Root endpoint with basic API information.",
+        "operationId": "root__get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Root  Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/methodology": {
+      "get": {
+        "summary": "Methodology",
+        "description": "Information about implementation methodology and differences from T-Scan.",
+        "operationId": "methodology_methodology_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Methodology Methodology Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "summary": "Health Check",
+        "description": "Health check endpoint.",
+        "operationId": "health_check_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "type": "object",
+                  "title": "Response Health Check Health Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/score-sentence": {
+      "post": {
+        "summary": "Score Sentence",
+        "description": "Score a single sentence for readability.",
+        "operationId": "score_sentence_score_sentence_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TextInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SentenceScoreResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/score-document": {
+      "post": {
+        "summary": "Score Document",
+        "description": "Score a document for readability.",
+        "operationId": "score_document_score_document_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TextInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DocumentScoreResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/analyze-document": {
+      "post": {
+        "summary": "Analyze Document",
+        "description": "Provide detailed analysis of document readability.",
+        "operationId": "analyze_document_analyze_document_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TextInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DetailedDocumentResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "DetailedDocumentResponse": {
+        "properties": {
+          "document_score": {
+            "type": "number",
+            "title": "Document Score",
+            "description": "Overall document score"
+          },
+          "document_level": {
+            "type": "integer",
+            "title": "Document Level",
+            "description": "Overall difficulty level (1=easy, 4=very difficult)"
+          },
+          "sentence_count": {
+            "type": "integer",
+            "title": "Sentence Count",
+            "description": "Number of sentences"
+          },
+          "average_sentence_length": {
+            "type": "number",
+            "title": "Average Sentence Length",
+            "description": "Average words per sentence"
+          },
+          "sentences": {
+            "items": {
+              "$ref": "#/components/schemas/SentenceAnalysis"
+            },
+            "type": "array",
+            "title": "Sentences",
+            "description": "Individual sentence analyses"
+          }
+        },
+        "type": "object",
+        "required": [
+          "document_score",
+          "document_level",
+          "sentence_count",
+          "average_sentence_length",
+          "sentences"
+        ],
+        "title": "DetailedDocumentResponse",
+        "description": "Response model for detailed document analysis."
+      },
+      "DocumentScoreResponse": {
+        "properties": {
+          "lint_score": {
+            "type": "number",
+            "title": "Lint Score",
+            "description": "Average LiNT readability score (0-100)"
+          },
+          "difficulty_level": {
+            "type": "integer",
+            "title": "Difficulty Level",
+            "description": "Overall difficulty level (1=easy, 4=very difficult)"
+          }
+        },
+        "type": "object",
+        "required": [
+          "lint_score",
+          "difficulty_level"
+        ],
+        "title": "DocumentScoreResponse",
+        "description": "Response model for document scoring."
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "SentenceAnalysis": {
+        "properties": {
+          "sentence": {
+            "type": "string",
+            "title": "Sentence",
+            "description": "The sentence text"
+          },
+          "lint_score": {
+            "type": "number",
+            "title": "Lint Score",
+            "description": "LiNT readability score"
+          },
+          "difficulty_level": {
+            "type": "integer",
+            "title": "Difficulty Level",
+            "description": "Difficulty level (1=easy, 4=very difficult)"
+          },
+          "word_frequency_log": {
+            "type": "number",
+            "title": "Word Frequency Log",
+            "description": "Average log word frequency"
+          },
+          "max_dependency_length": {
+            "type": "integer",
+            "title": "Max Dependency Length",
+            "description": "Maximum dependency length"
+          },
+          "content_words_proportion": {
+            "type": "number",
+            "title": "Content Words Proportion",
+            "description": "Proportion of content words"
+          },
+          "concrete_nouns_proportion": {
+            "type": "number",
+            "title": "Concrete Nouns Proportion",
+            "description": "Proportion of concrete nouns (always 0.0, see /methodology)"
+          }
+        },
+        "type": "object",
+        "required": [
+          "sentence",
+          "lint_score",
+          "difficulty_level",
+          "word_frequency_log",
+          "max_dependency_length",
+          "content_words_proportion",
+          "concrete_nouns_proportion"
+        ],
+        "title": "SentenceAnalysis",
+        "description": "Model for individual sentence analysis."
+      },
+      "SentenceScoreResponse": {
+        "properties": {
+          "lint_score": {
+            "type": "number",
+            "title": "Lint Score",
+            "description": "LiNT readability score (0-100)"
+          },
+          "difficulty_level": {
+            "type": "integer",
+            "title": "Difficulty Level",
+            "description": "Difficulty level (1=easy, 4=very difficult)"
+          }
+        },
+        "type": "object",
+        "required": [
+          "lint_score",
+          "difficulty_level"
+        ],
+        "title": "SentenceScoreResponse",
+        "description": "Response model for sentence scoring."
+      },
+      "TextInput": {
+        "properties": {
+          "text": {
+            "type": "string",
+            "title": "Text",
+            "description": "Text to analyze for readability"
+          }
+        },
+        "type": "object",
+        "required": [
+          "text"
+        ],
+        "title": "TextInput",
+        "description": "Input model for text to be analyzed."
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      }
+    }
+  }
+}

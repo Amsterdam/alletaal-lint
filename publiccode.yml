@@ -15,7 +15,7 @@ description:
       - REST API for integration
       - Command-line interface
       - Sentence and document level analysis
-      - Multiple output formats (JSON, CSV, table)
+      - Multiple output formats (JSON, table)
     genericName: Text Readability Assessment Tool
     longDescription: |
       alletaal-lint is a Dutch text readability assessment tool based on the LiNT 
@@ -23,10 +23,10 @@ description:
       automated scoring of Dutch text readability using linguistic features such as 
       word frequency, syntactic complexity, content word density, and concreteness.
       
-      The tool is designed to help content creators, editors, and organizations 
-      evaluate and improve the accessibility of their Dutch text content. It 
-      provides readability scores on a scale of 1-4, where 1 represents very 
-      difficult text and 4 represents easy-to-read text.
+      The tool is designed to help content creators, editors, and organizations
+      evaluate and improve the accessibility of their Dutch text content. It
+      provides readability scores on a 0-100 scale and difficulty levels 1-4,
+      where 1 is easy and 4 is very difficult.
       
       Key features include:
       - Sentence-level and document-level readability analysis
@@ -64,10 +64,10 @@ platforms:
   - linux
   - windows
   - mac
-releaseDate: '2024-12-16'
+releaseDate: '2026-03-24'
 roadmap: 'https://github.com/Amsterdam/alletaal-lint/blob/main/README.md#roadmap'
 softwareType: standalone/desktop
-softwareVersion: 1.0.0
+softwareVersion: 1.1.0
 url: 'https://github.com/Amsterdam/alletaal-lint'
 usedBy:
   - City of Amsterdam

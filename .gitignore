@@ -149,4 +149,3 @@ test_output/
 # nl_core_news_sm/
 
 # Development tools
-.pre-commit-config.yaml

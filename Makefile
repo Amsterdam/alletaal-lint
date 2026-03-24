@@ -1,6 +1,6 @@
 # Makefile for alletaal-lint development
 
-.PHONY: help install install-dev test test-cov lint format type-check clean build upload docs serve-docs
+.PHONY: help install install-dev test test-cov lint format type-check clean build upload docs setup openapi
 
 # Default target
 help:
@@ -19,6 +19,8 @@ help:
 	@echo "  docker-build  Build Docker image"
 	@echo "  docker-up     Start with docker-compose"
 	@echo "  docker-down   Stop docker-compose services"
+	@echo "  setup         Full dev setup (install + spaCy model)"
+	@echo "  openapi       Export OpenAPI spec to openapi.json"
 	@echo "  example-cli   Run CLI examples"
 	@echo "  example-api   Test API endpoints"
 	@echo "  perf-test     Run performance tests"
@@ -30,7 +32,6 @@ install:
 
 install-dev:
 	pip install -e ".[dev]"
-	pre-commit install
 
 install-model:
 	python -m spacy download nl_core_news_sm
@@ -47,7 +48,7 @@ test-watch:
 
 # Code quality targets
 lint:
-	flake8 src/ tests/
+	flake8 src/ tests/ --max-line-length=88 --extend-ignore=E203,W503
 	black --check src/ tests/
 	isort --check-only src/ tests/
 
@@ -64,10 +65,14 @@ check: lint type-check test
 server:
 	alletaal-lint server --reload
 
-# Documentation
+# Documentation & OpenAPI
 docs:
 	@echo "Documentation is in README.md"
 	@echo "API docs available at http://localhost:8000/docs when server is running"
+
+openapi:
+	alletaal-lint openapi --output openapi.json
+	@echo "OpenAPI spec written to openapi.json"
 
 # Build and distribution
 clean:
@@ -120,10 +125,6 @@ example-cli:
 	@echo ""
 	@echo "Note: Scores may differ from T-Scan due to modern NLP implementation differences."
 
-debug-sentence:
-	@echo "Debugging specific sentence..."
-	@python debug_sentence.py
-
 example-api:
 	@echo "Starting API server in background..."
 	alletaal-lint server &
@@ -137,8 +138,8 @@ example-api:
 	pkill -f "alletaal-lint server"
 
 # Development utilities
-dev-setup: install-dev install-model
-	@echo "Development environment ready!"
+setup: install-dev install-model
+	@echo "Development environment ready! Run 'make test' to verify."
 
 ci-test: lint type-check test-cov
 	@echo "All CI checks passed!"

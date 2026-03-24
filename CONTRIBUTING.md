@@ -7,8 +7,7 @@ Thanks for your interest in contributing!
 1. **Fork and clone** the repository
 2. **Set up your environment**:
    ```bash
-   pip install -e ".[dev]"
-   python -m spacy download nl_core_news_sm
+   make setup
    ```
 3. **Make your changes**
 4. **Run tests**: `make test`

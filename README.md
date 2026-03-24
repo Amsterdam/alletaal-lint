@@ -3,9 +3,11 @@
 **Dutch Text Readability Assessment Tool using LiNT Methodology**
 
 [![License: EUPL v1.2](https://img.shields.io/badge/License-EUPL%20v1.2-blue.svg)](LICENSE)
-[![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
+[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 
-alletaal-lint is a Dutch text readability assessment tool based on the LiNT (Leesbaarheids­instrument voor Nederlandse Teksten) methodology. It provides automated scoring of Dutch text readability using linguistic features such as word frequency, syntactic complexity, content word density, and concreteness.
+alletaal-lint is a simplified Dutch text readability assessment tool based on the LiNT (Leesbaarheids­instrument voor Nederlandse Teksten) methodology. It provides automated scoring of Dutch text readability using linguistic features such as word frequency, syntactic complexity, and content word density.
+
+**Why this tool?** The original [T-Scan](https://github.com/CentreForDigitalHumanities/tscan) implementation requires Alpino parser, Frog NLP, and custom corpora — making integration complex. alletaal-lint uses modern, pip-installable tools (spaCy + wordfreq) to provide a practical approximation of the LiNT score.
 
 ## Features
 
@@ -112,27 +114,13 @@ LiNT scores range from 0-100, with higher scores indicating more readable text:
 
 ### Linguistic Features
 
-The LiNT score is calculated using four key linguistic features:
+The LiNT score is calculated using the original LiNT2 formula coefficients with three active features:
 
-1. **Word Frequency**: How common the words are in Dutch
-2. **Syntactic Complexity**: Maximum dependency distance in sentences
-3. **Content Word Density**: Proportion of content words (excluding adverbs)
-4. **Concreteness**: Proportion of concrete nouns
+1. **Word Frequency**: How common the words are in Dutch (via `wordfreq` zipf scale)
+2. **Syntactic Complexity**: Maximum dependency distance in sentences (via spaCy)
+3. **Content Word Density**: Proportion of content words excluding adverbs (per sentence)
 
-### Score Interpretation & Compatibility
-
-**Important Note**: This implementation uses modern NLP tools (spaCy) and may produce scores that differ from the original T-Scan implementation. The differences are due to:
-
-- **Different parsing approaches**: spaCy vs. Alpino parser
-- **Feature extraction methods**: Simplified vs. complex linguistic analysis
-- **Frequency databases**: wordfreq vs. T-Scan's frequency data
-
-**Key Points**:
-- **Scientifically valid**: Uses the original LiNT formula and methodology
-- **Consistent results**: Provides reliable relative readability assessment
-- **Modern technology**: Benefits from current NLP advances
-- **Score variance**: May differ 3-7 points from T-Scan for complex sentences
-- **Relative ranking**: Correctly identifies more/less readable texts
+> **Note**: The fourth LiNT feature — concrete noun proportion — is not implemented. The original T-Scan uses a Cornetto semantic lexicon to classify nouns as concrete/abstract. Since replicating this would require bundling a large lexicon (defeating the simplification goal), this feature returns 0.0 and its formula coefficient is effectively zeroed out.
 
 ## Methodology
 
@@ -143,28 +131,19 @@ score = 3.204 + (15.845 × freq_log) - (1.331 × max_dep) - (3.829 × content_wo
 final_score = min(100, max(0, 100 - score))
 ```
 
-### Implementation Approach
+### Differences from T-Scan
 
-This modern implementation maintains the core LiNT formula while using contemporary NLP tools:
+This tool is a **deliberate simplification** of [T-Scan](https://github.com/CentreForDigitalHumanities/tscan). The formula coefficients are identical to T-Scan's `lint_score_2`, but the feature extraction uses different tooling:
 
-**Feature Extraction**:
-- **Word Frequency**: Uses `wordfreq` library with Dutch language data
-- **Dependency Parsing**: Uses spaCy's Dutch model (`nl_core_news_sm`)
-- **Content Word Classification**: Based on spaCy POS tags and morphological features
-- **Syntactic Analysis**: spaCy dependency parsing for distance calculations
+| Feature | alletaal-lint | T-Scan | Impact |
+|---------|--------------|--------|--------|
+| **Word frequency** | `wordfreq` library (zipf scale) | `log10(freq/billion)` from SUBTLEX-NL | Different scale ranges |
+| **Dependency distance** | spaCy neural parser | Alpino rule-based parser | Different parse trees |
+| **Content word density** | Per-sentence (clause count = 1) | Per-clause with full clause detection | Overestimates for multi-clause sentences |
+| **Concrete nouns** | Not implemented (returns 0.0) | Cornetto semantic lexicon | Formula term zeroed out |
+| **Difficulty thresholds** | 36 / 51 / 61.5 | 34 / 46 / 60 | Minor, design choice |
 
-**Differences from Original T-Scan**:
-- **Parser**: spaCy instead of Alpino (affects dependency distance calculation)
-- **Frequency Data**: wordfreq instead of SUBTLEX-NL (affects word frequency scores)
-- **Clause Detection**: Simplified approach vs. T-Scan's sophisticated clause analysis
-- **Semantic Classification**: POS-based vs. T-Scan's semantic noun categorization
-
-### Validation & Accuracy
-
-- **Formula Accuracy**: ✅ Identical to original LiNT2 formula
-- **Relative Assessment**: ✅ Correctly ranks text difficulty
-- **Absolute Scores**: ⚠️ May vary 3-7 points from T-Scan due to parsing differences
-- **Consistency**: ✅ Provides reliable, repeatable measurements
+**Consequence**: Scores are not directly comparable to T-Scan. The tool provides consistent relative ranking of text difficulty within its own scoring system. For applications needing exact T-Scan compatibility, use T-Scan directly.
 
 ### Research Background
 
@@ -177,7 +156,7 @@ This modern implementation maintains the core LiNT formula while using contempor
 
 ### System Requirements
 
-- Python 3.9 or higher
+- Python 3.10 or higher
 - 2GB RAM (for spaCy model)
 - Internet connection (for initial model download)
 
@@ -194,8 +173,7 @@ This modern implementation maintains the core LiNT formula while using contempor
 ```bash
 git clone https://github.com/Amsterdam/alletaal-lint.git
 cd alletaal-lint
-pip install -e ".[dev]"
-python -m spacy download nl_core_news_sm
+make setup  # installs package, dev deps, and spaCy model
 ```
 
 ## Docker Usage
@@ -268,6 +246,17 @@ services:
 - **Memory usage**: ~500MB (primarily spaCy model)
 - **Concurrent requests**: Supports multiple simultaneous API requests
 
+### OpenAPI Specification
+
+An OpenAPI spec is available for integration with other systems:
+
+```bash
+# Export to file
+alletaal-lint openapi --output openapi.json
+
+# Or use the pre-generated spec in the repository root
+```
+
 ## API Reference
 
 ### Endpoints
@@ -278,6 +267,7 @@ services:
 | `/score-document` | POST | Score an entire document |
 | `/analyze-document` | POST | Detailed document analysis |
 | `/health` | GET | Service health check |
+| `/methodology` | GET | Implementation methodology details |
 | `/docs` | GET | Interactive API documentation |
 
 ### Response Format
@@ -304,7 +294,7 @@ Detailed analysis includes additional metrics:
       "word_frequency_log": 4.2,
       "max_dependency_length": 3,
       "content_words_proportion": 0.6,
-      "concrete_nouns_proportion": 0.3
+      "concrete_nouns_proportion": 0.0
     }
   ]
 }
@@ -317,9 +307,8 @@ We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guid
 ### Development Setup
 
 1. Fork the repository
-2. Set up development environment: `pip install -e ".[dev]"`
-3. Install pre-commit hooks: `pre-commit install`
-4. Run tests: `pytest`
+2. One-command setup: `make setup`
+3. Run tests: `make test`
 
 ## Testing
 

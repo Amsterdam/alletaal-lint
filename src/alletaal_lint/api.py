@@ -24,14 +24,18 @@ class SentenceScoreResponse(BaseModel):
     """Response model for sentence scoring."""
 
     lint_score: float = Field(..., description="LiNT readability score (0-100)")
-    difficulty_level: int = Field(..., description="Difficulty level (1-4)")
+    difficulty_level: int = Field(
+        ..., description="Difficulty level (1=easy, 4=very difficult)"
+    )
 
 
 class DocumentScoreResponse(BaseModel):
     """Response model for document scoring."""
 
     lint_score: float = Field(..., description="Average LiNT readability score (0-100)")
-    difficulty_level: int = Field(..., description="Overall difficulty level (1-4)")
+    difficulty_level: int = Field(
+        ..., description="Overall difficulty level (1=easy, 4=very difficult)"
+    )
 
 
 class SentenceAnalysis(BaseModel):
@@ -39,14 +43,17 @@ class SentenceAnalysis(BaseModel):
 
     sentence: str = Field(..., description="The sentence text")
     lint_score: float = Field(..., description="LiNT readability score")
-    difficulty_level: int = Field(..., description="Difficulty level")
+    difficulty_level: int = Field(
+        ..., description="Difficulty level (1=easy, 4=very difficult)"
+    )
     word_frequency_log: float = Field(..., description="Average log word frequency")
     max_dependency_length: int = Field(..., description="Maximum dependency length")
     content_words_proportion: float = Field(
         ..., description="Proportion of content words"
     )
     concrete_nouns_proportion: float = Field(
-        ..., description="Proportion of concrete nouns"
+        ...,
+        description="Proportion of concrete nouns (always 0.0, see /methodology)",
     )
 
 
@@ -54,7 +61,9 @@ class DetailedDocumentResponse(BaseModel):
     """Response model for detailed document analysis."""
 
     document_score: float = Field(..., description="Overall document score")
-    document_level: int = Field(..., description="Overall difficulty level")
+    document_level: int = Field(
+        ..., description="Overall difficulty level (1=easy, 4=very difficult)"
+    )
     sentence_count: int = Field(..., description="Number of sentences")
     average_sentence_length: float = Field(
         ..., description="Average words per sentence"
@@ -71,7 +80,7 @@ def create_app() -> FastAPI:
         description="Dutch Text Readability Assessment using LiNT methodology. "
         "Scores may differ from original T-Scan due to modern NLP implementation. "
         "See /methodology for details.",
-        version="1.0.0",
+        version="1.1.0",
         docs_url="/docs",
         redoc_url="/redoc",
     )
@@ -111,8 +120,9 @@ def create_app() -> FastAPI:
         return {
             "name": "alletaal-lint API",
             "description": "Dutch Text Readability Assessment using LiNT methodology",
-            "version": "1.0.0",
-            "note": "Scores may differ from original T-Scan due to modern NLP implementation",
+            "version": "1.1.0",
+            "note": "Simplified LiNT implementation — "
+            "scores are not directly comparable to T-Scan",
             "methodology": "/methodology",
             "endpoints": {
                 "score_sentence": "/score-sentence",
@@ -129,15 +139,22 @@ def create_app() -> FastAPI:
         return {
             "implementation": "Modern NLP with spaCy and wordfreq",
             "formula": "Original LiNT2 formula (identical to T-Scan)",
-            "differences": {
-                "parser": "spaCy (neural) vs Alpino (rule-based)",
-                "frequency_data": "wordfreq vs SUBTLEX-NL",
-                "clause_detection": "Simplified vs sophisticated",
-                "noun_classification": "POS-based vs semantic",
+            "difficulty_levels": {
+                "1": "Easy (score > 61.5)",
+                "2": "Moderate (score 51-61.5)",
+                "3": "Difficult (score 36-51)",
+                "4": "Very Difficult (score <= 36)",
             },
-            "score_variance": "May differ 3-7 points from T-Scan for complex sentences",
-            "scientific_validity": "Maintains LiNT methodology principles",
-            "documentation": "",
+            "differences_from_tscan": {
+                "word_frequency": "wordfreq (zipf scale) vs SUBTLEX-NL log frequency",
+                "parser": "spaCy neural vs Alpino rule-based",
+                "clause_detection": "Simplified (1 clause/sentence) "
+                "vs full clause parsing",
+                "concrete_nouns": "Not implemented (returns 0.0) "
+                "vs Cornetto semantic lexicon",
+            },
+            "note": "Scores are not directly comparable to T-Scan. "
+            "The tool provides consistent relative ranking within its own system.",
         }
 
     @app.get("/health")
@@ -145,7 +162,7 @@ def create_app() -> FastAPI:
         """Health check endpoint."""
         try:
             # Test that spaCy model can be loaded
-            test_sentence = Sentence("Test zin.")
+            Sentence("Test zin.")
             return {"status": "healthy", "spacy_model": "nl_core_news_sm loaded"}
         except Exception as e:
             raise HTTPException(status_code=503, detail=f"Service unhealthy: {str(e)}")
@@ -198,8 +215,12 @@ def create_app() -> FastAPI:
                         difficulty_level=sentence.get_difficulty_level(),
                         word_frequency_log=sentence.get_word_frequency_log(),
                         max_dependency_length=sentence.get_max_dependency_length(),
-                        content_words_proportion=sentence.get_proportion_of_content_words_excluding_adverbs(),
-                        concrete_nouns_proportion=sentence.get_proportion_of_broadly_concrete_nouns(),
+                        content_words_proportion=(
+                            sentence.get_proportion_of_content_words_excluding_adverbs()
+                        ),
+                        concrete_nouns_proportion=(
+                            sentence.get_proportion_of_broadly_concrete_nouns()
+                        ),
                     )
                 )
 

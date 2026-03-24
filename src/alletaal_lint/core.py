@@ -12,8 +12,6 @@ remains unchanged, ensuring scientific validity while benefiting from
 contemporary NLP advances.
 """
 
-import math
-from collections import defaultdict
 from typing import Any, Dict, List, Optional, Tuple
 
 import spacy
@@ -70,10 +68,6 @@ class WordStats:
     def is_noun_or_spec(self) -> bool:
         """Check if word is a noun or special token."""
         return self.tag in ["N", "SPEC"]
-
-    def is_non_noun_content(self) -> bool:
-        """Check if word is non-noun content (for concrete noun calculation)."""
-        return self.pos not in ["NOUN"]
 
 
 class LintScorer:
@@ -178,21 +172,20 @@ class Sentence:
         return content_count / clause_count if clause_count > 0 else 0
 
     def get_proportion_of_broadly_concrete_nouns(self) -> float:
-        """Calculate proportion of broadly concrete nouns."""
-        total_nouns = 0
-        non_noun_content = 0
+        """
+        Concrete noun proportion (simplified — always returns 0.0).
 
-        for word in self.words:
-            if word.is_noun_or_spec():
-                total_nouns += 1
-                if word.is_non_noun_content():
-                    non_noun_content += 1
+        The original T-Scan uses a hand-curated semantic lexicon (Cornetto) to
+        classify nouns as concrete vs abstract. Replicating this would require
+        bundling a large lexicon, defeating this tool's simplification goal.
 
-        return non_noun_content / total_nouns if total_nouns > 0 else 0
+        The formula coefficient (13.096) is preserved but effectively zeroed out.
+        """
+        return 0.0
 
     def _get_clause_count(self) -> int:
         """Estimate clause count (simplified implementation)."""
-        # Simplified clause counting - in practice, this would require more sophisticated parsing
+        # Simplified: assumes 1 clause per sentence
         # For now, assume 1 clause per sentence as a baseline
         return 1
 

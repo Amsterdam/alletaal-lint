@@ -22,10 +22,10 @@ class TestLintScorer:
 
     def test_difficulty_levels(self):
         """Test difficulty level mapping."""
-        assert LintScorer.get_difficulty_level(30) == 1  # Very difficult
-        assert LintScorer.get_difficulty_level(45) == 2  # Difficult
-        assert LintScorer.get_difficulty_level(55) == 3  # Moderate
-        assert LintScorer.get_difficulty_level(70) == 4  # Easy
+        assert LintScorer.get_difficulty_level(30) == 4  # Very difficult
+        assert LintScorer.get_difficulty_level(45) == 3  # Difficult
+        assert LintScorer.get_difficulty_level(55) == 2  # Moderate
+        assert LintScorer.get_difficulty_level(70) == 1  # Easy
 
     def test_score_boundaries(self):
         """Test score boundary conditions."""
