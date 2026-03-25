@@ -148,4 +148,7 @@ test_output/
 # Keep this commented out since models should be downloaded
 # nl_core_news_sm/
 
+# Claude Code
+CLAUDE.md
+
 # Development tools

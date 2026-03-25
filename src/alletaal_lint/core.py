@@ -96,7 +96,7 @@ class LintScorer:
             - (3.829 * content_words)
             + (13.096 * concrete)
         )
-        return round(min(100.0, max(0.0, 100 - score)), 2)
+        return round(min(100.0, max(0.0, score)), 2)
 
     @staticmethod
     def get_difficulty_level(score: float) -> int:
@@ -165,11 +165,11 @@ class Sentence:
         return sum(1 for word in self.words if word.is_content_word_excluding_adverbs())
 
     def get_proportion_of_content_words_excluding_adverbs(self) -> float:
-        """Get proportion of content words excluding adverbs per clause."""
+        """Get proportion of content words excluding adverbs."""
         content_count = self.count_content_words_excluding_adverbs()
-        clause_count = self._get_clause_count()
+        total_words = sum(1 for w in self.words if w.pos not in ["PUNCT", "SPACE"])
 
-        return content_count / clause_count if clause_count > 0 else 0
+        return content_count / total_words if total_words > 0 else 0
 
     def get_proportion_of_broadly_concrete_nouns(self) -> float:
         """
